@@ -1,17 +1,15 @@
-import requests
-
 def get_weather(city, api_key):
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-    response = requests.get(url)
-    if response.status_code == 200:
+    if not api_key:
+        print("API key is missing. Please provide one.")
+        return
+
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
         data = response.json()
         print(f"Weather in {city}: {data['weather'][0]['description']}")
         print(f"Temperature: {data['main']['temp']}°C")
         print(f"Humidity: {data['main']['humidity']}%")
-    else:
-        print("Error fetching weather data. Check your city name or API key.")
-
-if __name__ == "__main__":
-    city = input("Enter city name: ")
-    api_key = input("Enter your OpenWeatherMap API key: ")
-    get_weather(city, api_key)
+    except requests.exceptions.RequestException as e:
+        print(f"Network error: {e}")
